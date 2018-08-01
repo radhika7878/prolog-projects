@@ -1,0 +1,77 @@
+post_list([consul,judge,public minister,ambassador,healthminister,financeminister,unionminister]).
+office_list([consul,judge,public minister,ambassador]).
+vacancy_list([healthminister,financeminister]).
+congress_appointment_list([healthminister,consul]).
+president('Mr. Gates').
+vicepresident('Mr. Bells').
+death('Mr.Gh').
+resignation('Mr. Bells').
+highcrime('Mr. A').
+bribery('Mr. C').
+treachery('Mr. Gate').
+senator_present('Mr. D','Aye').
+senator_present('Mr. A','Aye').
+senator_present('Mr. D1','Aye').
+senator_present('Mr. A1','Aye').
+senator_present('Mr. A2','Aye').
+senator_present('Mr. D2','Nay').
+senator_present('Mr. D3','Nay').
+senator_present('Mr. A3','Nay').
+senator_present('Mr. D4','Nay').
+senator_present('Mr. A4','Nay').
+us_offence('Mr. Lk','Impeached').
+us_offence('Mr. Jk','Impeached').
+us_offence('Mr. Mk','Not Impeached').
+current_president_compensation(1000).
+electors_allowed_in_state('State A',3).
+electors_allowed_in_state('State B',3).
+electors_allowed_in_state('State C',3).
+electors_allowed_in_state('State D',4).
+senator('Mr. D').
+senator('Mr. A').
+p_details('Mr. John',36,'citizen',36).
+p_details('Mr. Charles',36,'not citizen',36).
+p_details('Mr. Paul',32,'citizen',32).
+p_details('Mr. Sean',36,'citizen',12).
+elector('Mr. A','State A','Mr. John','Mr. Kennedy').
+elector('Mr. B','State A','Mr. John','Mr. Clinton').
+elector('Mr. C','State A','Mr. John','Mr. Gates').
+elector('Mr. D','State B','Mr. Kennedy','Mr. John').
+elector('Mr. E','State B','Mr. Kennedy','Mr. Clinton').
+elector('Mr. F','State B','Mr. Kennedy','Mr. Gates').
+elector('Mr. G','State C','Mr. Clinton','Mr. Kennedy').
+elector('Mr. H','State C','Mr. Clinton','Mr. John').
+elector('Mr. I','State C','Mr. Clinton','Mr. Gates').
+elector('Mr. J','State D','Mr. Gates','Mr. Kennedy').
+elector('Mr. K','State D','Mr. Gates','Mr. John').
+elector('Mr. L','State D','Mr. Gates','Mr. Clinton').
+president_term :- writeln('The term of the president lasts four years.').
+president_term(N) :- (0=<N,N=<4) -> M is (4-N),write(M),writeln(' year(s) of the Presidents term is remaining.');writeln('Invalid number of years.').
+vicepresident_term :- writeln('The term of the president lasts four years.').
+vicepresident_term(N) :- (0=<N,N=<4) -> M is (4-N),write(M),writeln(' year(s) of the Presidents term is remaining.');writeln('Invalid number of years.').
+electiondate_decided_by :- writeln('Election date is decided by Congress.').
+electors_in_state_check(Z) :- (findall(X,elector(X,Z,_,_),Y),length(Y,N) , electors_allowed_in_state(Z,N)) -> write('Number of electors for '), write(Z), writeln(' is correct.'); write('Number of electors for '), write(Z), writeln(' is incorrect.').
+electors_in_state_check :- findall(X,electors_allowed_in_state(X,_),Y),foreach(member(Z,Y),electors_in_state_check(Z)).
+elector_check(X) :- senator(X)-> write(X),writeln(' is a senator hence cannot be elector.');write(X),writeln(' is a valid elector.').
+elector_check :- findall(X,elector(X,_,_,_),Y),foreach(member(Z,Y),elector_check(Z)).
+eligible_for_president(X) :- (p_details(X,M,A,N), 35=<M,A='citizen', 14=<N) -> write(X),writeln(' is eligible to be president.') ; write(X),writeln(' is not eligible to be president.').
+eligible_presidential_candidates :- findall(X,p_details(X,_,_,_),Y),foreach(member(Z,Y),eligible_for_president(Z)).
+president_compensation :- current_president_compensation(N),write('President compensation is '), writeln(N).
+president_compensation(N) :- current_president_compensation(M),((M<N) -> writeln('President compensation cannot be increased.');(N<M)->writeln('President compensation cannot be decreased.');writeln('That is the correct President compensation.')).
+crime_check_president :- president(X),(highcrime(X);bribery(X);treachery(X)).
+crime_check_vicepresident :- vicepresident(X),(highcrime(X);bribery(X);treachery(X)).
+remove_president_cond :- president(X),(crime_check_president;death(X);resignation(X)).
+remove_vicepresident_cond :- vicepresident(X),(crime_check_vicepresident;death(X);resignation(X)).
+remove_president :- remove_president_cond-> (\+remove_vicepresident_cond -> writeln('Vice President will replace the President.');writeln('Congress shall decide who will act as President.'));writeln('President need not be removed.').
+crime_check :- crime_check_president->writeln('President has to be removed.'),remove_president;writeln('President need not be removed.').
+commander_in_chief(X) :- president(X).
+grant_reprieves(Z) :- us_offence(Z,X),(X='Impeached' -> write(Z),writeln(' cannot be granted reprieve by the president.'); write(Z),writeln(' can be granted reprieve by the President.')).
+grant_reprieves :- findall(X,us_offence(X,_),Y),foreach(member(Z,Y),grant_reprieves(Z)).
+president_treaties :- findall(X,senator_present(X,_),Y), length(Y,N1) , N is 2*(N1/3) , findall(X1,senator_present(X1,'Aye'),Y1),length(Y1,Count),(N=<Count->writeln('Treaty can be passed by President.');writeln('Treaty cannot be passed by President.')).
+president_appointments(X) :- office_list(A),vacancy_list(B),congress_appointment_list(C),((memberchk(X,A);memberchk(X,B)),\+memberchk(X,C))->write('President can appoint '),writeln(X);write('President cannot appoint '),writeln(X).
+president_appointments :- post_list(X),foreach(member(Z,X),president_appointments(Z)).
+
+
+
+
+

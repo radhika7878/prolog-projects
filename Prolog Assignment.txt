@@ -1,0 +1,26 @@
+rhyme(cat,bat).
+rhyme(rat,bat).
+rhyme(X,X).
+divisibleBy2(X) :- X mod 2 =:=0.
+len([],0).
+len([_|X],N) :- len(X,Y) , N is Y+1.
+getlast([X],X).
+getlast([_|X],L) :- getlast(X,L).
+delete([_],[]).
+delete([X|T],[X|L]) :- delete(T,L).
+breakdown([],'Doha').
+breakdown([],'Quartet').
+breakdown([X,Y|T],'Doha') :- (classify([X,Y],'Doha') -> breakdown(T,'Doha')) ; breakdown([X,Y|T],'Quartet')).
+breakdown([W,X,Y,Z|T],'Quartet') :- classify([W,X,Y,Z],'Quartet') -> breakdown(T,'Doha').
+checkrhyme([]).
+checkrhyme([_]).
+checkrhyme([A,B]) :- \+rhyme(A,B), \+rhyme(B,A).
+checkrhyme([A|X]) :- check(A,X), checkrhyme(X).
+check(A,[B]) :- \+rhyme(A,B) , \+rhyme(B,A).
+check(A,[B|L]) :- \+rhyme(A,B) , \+rhyme(B,A), check(A,L).
+classify([[A,B,C,D,E,F,G]],'Haiku'):- checkrhyme([A,B,C,D,E,F,G]).
+classify([[A,_,_,_,_,_,_],[_,_,_,_,_,_,B],[C,_,_,_,_,_,_],[_,_,_,_,_,_,D]],'Quartet') :- rhyme(A,C) , rhyme(B,D).
+classify([[[_,_,_,A],[_,_,B]],[[_,_,_,C],[_,_,D]]],'Doha') :- rhyme(A,C),rhyme(B,D).
+classify(X,'Fusion Sonnet') :- len(X,N),(divisibleBy2(N) -> breakdown(X,'Doha') ; (getlast(X,L),classify([L],'Haiku'),delete(X,Y),breakdown(Y,'Doha'))).
+poem([]) :- writeln('Not a poem').
+poem(X) :- (classify(X,'Haiku') -> writeln('Haiku') ; (classify(X,'Doha') -> writeln('Doha') ; (classify(X,'Quartet') -> writeln('Quartet') ; (classify(X,'Fusion Sonnet') -> writeln('Fusion Sonnet') ; writeln('Unknown'))))).
